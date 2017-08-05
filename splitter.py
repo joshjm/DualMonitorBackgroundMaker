@@ -78,6 +78,7 @@ R2W = 1920#horizontal resolution of second monitor
 R2H = 1080#vertical resolution of second monitor
 
 V = 1.5 #vertical offset between tops of monitors.
+H = 2.5 #distance between monitors
 ######################################################
 
 M2H = R1H*((1.0*V/H1)) #the pixel height that monitor 2 should be at.
@@ -121,7 +122,7 @@ for file0 in glob.glob("./splitterinput/*.*"): #this is the folder where you put
         toplevel    = int(picture2.size[1]*V/H1)
         bottomlevel = int(picture2.size[1]*(V+H2)/H1)
 
-        left    = picture.size[0]*W1/(W1+W2) #crop off whats on the left screen
+        left    = picture.size[0]*W1/(W1+W2) + int(1.0*width*H/(W1+W2))#crop off whats on the left screen
         bottom  = bottomlevel
         right   = picture2.size[0]
 
