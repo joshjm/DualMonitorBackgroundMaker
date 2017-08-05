@@ -107,7 +107,7 @@ for file0 in glob.glob("./splitterinput/*.*"): #this is the folder where you put
                                              #that is proportional to the screen size
         top     = 0
         leftim = picture.crop(( left , top , right , bottom ))  #resolution of left screen
-        leftim = leftim.resize((R1W,R1H))
+        leftim = leftim.resize((R1W,R1H), Image.ANTIALIAS)
         new_im.paste(leftim, (x_offset,0))
 
         #image 2
@@ -128,16 +128,16 @@ for file0 in glob.glob("./splitterinput/*.*"): #this is the folder where you put
         top     = toplevel
 
         rightim = picture2.crop(( left , top , right , bottom ))  #resolution of left screen
-        rightim = rightim.resize((R1W,R1H))
+        rightim = rightim.resize((R1W,R1H), Image.ANTIALIAS)
 
         scaledH = int(yratio*R2H)
         scaledW = int(xratio*R2W)
 
-        rightim = rightim.resize((R2W,R2H))
+        rightim = rightim.resize((R2W,R2H), Image.ANTIALIAS)
 
         new_im.paste(rightim, (x_offset,y_offset))
 
-        new_im.save('./output/'+file0[16:])
+        new_im.save('./output/'+file0[16:], quality =100)
         print str(i) + ' images complete'
         i +=1
     else: #the file is not a jpg or png
