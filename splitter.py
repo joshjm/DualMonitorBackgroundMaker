@@ -81,10 +81,12 @@ V = 1.5 #vertical offset between tops of monitors.
 #H = input('input horizontal gap between monitors(cm). Enter 0 if the image was designed for dual monitors rather than an ultrawide monitor: ')
 H = 0 #distance between monitors
 
-flag1 = input('maintain PPI (yes/no)? : ')
-if flag1 == 'yes':
+flag1 = str(raw_input('maintain PPI (yes/no)? : '))
+if flag1 == "yes":
+    print 'Maintaing Pixels Per inch. Some cropping of right image may occur...'
     rescale = True
 else:
+    print 'Not maintaining PPI. Left/right image may not have the same aspect ratio...'
     rescale = False
 ######################################################
 
