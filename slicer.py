@@ -139,7 +139,7 @@ for file0 in glob.glob("./slicerinput/*.*"): #this is the folder where you put t
 
         new_im.paste(rightim, (x_offset,y_offset))
 
-        new_im.save('./output/'+file0[16:], quality =100)
+        new_im.save('./output/'+file0[13:], quality =100)
         print str(i) + ' images complete'
         i +=1
     else: #the file is not a jpg or png

@@ -80,6 +80,12 @@ R2H = 1080#vertical resolution of second monitor
 V = 1.5 #vertical offset between tops of monitors.
 #H = input('input horizontal gap between monitors(cm). Enter 0 if the image was designed for dual monitors rather than an ultrawide monitor: ')
 H = 0 #distance between monitors
+
+flag1 = input('maintain PPI (yes/no)? : ')
+if flag1 == 'yes':
+    rescale = True
+else:
+    rescale = False
 ######################################################
 
 M2H = R1H*((1.0*V/H1)) #the pixel height that monitor 2 should be at.
@@ -117,23 +123,20 @@ for file0 in glob.glob("./splitterinput/*.*"): #this is the folder where you put
         x_offset += int(leftim.size[0]) #place next to left im
         y_offset = int(M2H) #relative position of the monitors
 
-        xratio = 1.0*W1/W2
-        yratio = 1.0*H1/H2
-
         toplevel    = int(picture2.size[1]*V/H1)
         bottomlevel = int(picture2.size[1]*(V+H2)/H1)
 
-        left    = picture.size[0]/2 #+ int(1.0*width*H/(W1+W2))#crop off whats on the left screen
+        left    = picture2.size[0]/2 #+ int(1.0*width*H/(W1+W2))#crop off whats on the left screen
         bottom  = bottomlevel
-        right   = picture2.size[0]
-
+        print left
+        if rescale == True:
+            right = left + W2*picture2.size[0]/(2*W1)
+        else:
+            right = left*2
+        print right
         top     = toplevel
-
         rightim = picture2.crop(( left , top , right , bottom ))  #resolution of left screen
-        rightim = rightim.resize((R1W,R1H), Image.ANTIALIAS)
-
-        scaledH = int(yratio*R2H)
-        scaledW = int(xratio*R2W)
+        #rightim = rightim.resize((R1W,R1H), Image.ANTIALIAS)
 
         rightim = rightim.resize((R2W,R2H), Image.ANTIALIAS)
 
