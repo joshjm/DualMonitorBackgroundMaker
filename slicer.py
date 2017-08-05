@@ -78,7 +78,8 @@ R2W = 1920#horizontal resolution of second monitor
 R2H = 1080#vertical resolution of second monitor
 
 V = 1.5 #vertical offset between tops of monitors.
-H = 2.5 #distance between monitors
+H = input('input horizontal gap between monitors (cm). Enter 0 if the image was designed for dual monitors rather than an ultrawide monitor: ')
+#H = 2.5 #distance between monitors
 ######################################################
 
 M2H = R1H*((1.0*V/H1)) #the pixel height that monitor 2 should be at.
