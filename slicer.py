@@ -77,17 +77,17 @@ R1H = 2160 #vertical resolution of first monitor
 R2W = 1920#horizontal resolution of second monitor
 R2H = 1080#vertical resolution of second monitor
 
-V = 1.5 #vertical offset between tops of monitors.
-H = input('input horizontal gap between monitors (cm). Enter 0 if the image was designed for dual monitors rather than an ultrawide monitor: ')
+V = 0 #vertical offset between tops of monitors.
+H = 0
 #H = 2.5 #distance between monitors
 ######################################################
 
 M2H = R1H*((1.0*V/H1)) #the pixel height that monitor 2 should be at.
-print 'monitor 2 should be placed at: '+str(int(M2H))
+print ('monitor 2 should be placed at: '+str(int(M2H)))
 i = 1
 for file0 in glob.glob("./slicerinput/*.*"): #this is the folder where you put the pictures you want to adapt for dual screens.
     if file0[-4:] == '.png' or file0[-4:] == '.jpg' :
-        print 'now processing: '+str(file0)
+        print ('now processing: '+str(file0))
         width = R1W+R2W #input widths of a proper image generated from MS DualWallpaper
                      #this should be the width of your two monitors combined (pixels)
         height = max(R1H, R2H, R2H + M2H) #height of your tallest monitor. If your monitors are offset,
@@ -123,7 +123,7 @@ for file0 in glob.glob("./slicerinput/*.*"): #this is the folder where you put t
         toplevel    = int(picture2.size[1]*V/H1)
         bottomlevel = int(picture2.size[1]*(V+H2)/H1)
 
-        left    = picture.size[0]*W1/(W1+W2) + int(1.0*width*H/(W1+W2)) #crop off whats on the left screen
+        left    = picture.size[0]*int(W1/(W1+W2)) + int(1.0*width*int(H/(W1+W2))) #crop off whats on the left screen
         bottom  = bottomlevel
         right   = picture2.size[0]
 
@@ -140,8 +140,8 @@ for file0 in glob.glob("./slicerinput/*.*"): #this is the folder where you put t
         new_im.paste(rightim, (x_offset,y_offset))
 
         new_im.save('./output/'+file0[13:], quality =100)
-        print str(i) + ' images complete'
+        print (str(i) + ' images complete')
         i +=1
     else: #the file is not a jpg or png
-        print 'file '+file0+' is not a .png or .jpg. Skipping...'
+        print ('file '+file0+' is not a .png or .jpg. Skipping...')
         continue
