@@ -62,6 +62,7 @@ STEPS
               data column. Sign out/in again.
 """
 import glob, os
+import tkinter as tk
 from PIL import Image
 
 ##############  INPUT PARAMETERS  ###################
@@ -78,75 +79,101 @@ R2W = 1920#horizontal resolution of second monitor
 R2H = 1080#vertical resolution of second monitor
 
 V = 1.5 #vertical offset between tops of monitors.
+#lower = input('is the left or right monitor lower? (left1/right0): ')
+#mainmon = input('which is the main monitor? (left1/right0): ') #want to add an option to base the stretch options off of this mon.
+
 #H = input('input horizontal gap between monitors(cm). Enter 0 if the image was designed for dual monitors rather than an ultrawide monitor: ')
 H = 0 #distance between monitors
+def find_max_height(R1H,R2H,M1H,M2H,H1,H2):
+    print((M1H,M2H))
+    if R2H+M2H > R1H:
+        return(R2H+M2H) #if the monitors are diagonal, this should take the max
+    if R1H+M1H > R2H:
+        return(R1H+M1H) #if the monitors are diagonal, this should take the max
+    else:
+        return(int(max([R1H,R2H])))
+def monitor_placement(V,H1,H2,R1H,R2H,lower):
+    if lower == 0:
+        M2H = R1H*((1.0*V/H1)) #the pixel height that monitor 2 should be at.
+        print('monitor 2 should be placed at: '+str(int(M2H)))
+        M1H = 0
+    elif lower ==  1:
+        M1H = R2H*((1.0*V/H2)) #the pixel height that monitor 2 should be at.
+        print('monitor 1 should be placed at: '+str(int(M1H)))
+        M2H = 0
+    return((int(M1H),int(M2H)))
 
-flag1 = str(raw_input('maintain PPI (yes/no)? : '))
-if flag1 == "yes":
-    print 'Maintaing Pixels Per inch. Some cropping of right image may occur...'
-    rescale = True
-else:
-    print 'Not maintaining PPI. Left/right image may not have the same aspect ratio...'
-    rescale = False
-######################################################
+#flag1 = str(input('maintain PPI (yes1/no0)? : '))
+def main(H1,H2,W1,W2,R1W,R1H,R2W,R2H,V,H,lower,mainmon,centresplit, PPI,gap):
+    print((H1,H2,W1,W2,R1W,R1H,R2W,R2H,V,H,lower,mainmon,centresplit, PPI,gap))
+    ######################################################
+    #centresplit = input('force split in centre? (yes1/no0): ')
+    (M1H,M2H) = monitor_placement(V,H1,H2,R1H,R2H,lower)
+    i = 1
+    for file0 in glob.glob("./splitterinput/*.*"): #this is the folder where you put the pictures you want to adapt for dual screens.
+        if file0[-4:] == '.png' or file0[-4:] == '.jpg' :
+            print('now processing: '+str(file0))
+            width = R1W+R2W #input widths of a proper image generated from MS DualWallpaper
+                         #this should be the width of your two monitors combined (pixels)
+            height = find_max_height(R1H, R2H, M1H, M2H,H1,H2) #height of your tallest monitor. If your monitors are offset,
+                                              # This could be improved
+                          # then it should be the total height of both monitors, minus the overlap.
+            print(height)
+            new_im = Image.new('RGB', (width, height))
 
-M2H = R1H*((1.0*V/H1)) #the pixel height that monitor 2 should be at.
-print 'monitor 2 should be placed at: '+str(int(M2H))
-i = 1
-for file0 in glob.glob("./splitterinput/*.*"): #this is the folder where you put the pictures you want to adapt for dual screens.
-    if file0[-4:] == '.png' or file0[-4:] == '.jpg' :
-        print 'now processing: '+str(file0)
-        width = R1W+R2W #input widths of a proper image generated from MS DualWallpaper
-                     #this should be the width of your two monitors combined (pixels)
-        height = max(R1H, R2H, R2H + M2H) #height of your tallest monitor. If your monitors are offset,
-                                          # This could be improved
-                      # then it should be the total height of both monitors, minus the overlap.
+            picture = Image.open(file0)
+            #image 1
+            x1_offset = 0 #shouldnt need to change this
+            y1_offset = M1H #change this if left monitor is lower than right
+                         # DMT (dual monitor tools) by MS can tell you what the
+                         # offsets should be. DMT>>Monitors>>working
+            if mainmon == 1:
+                left    = 0
+            elif mainmon ==0:
+                left = 0 # i make this more flexible in the future
+            bottom  = picture.size[1]
+            if centresplit == 1:
+                right   = picture.size[0]/2 #force image split in middle
+            else:
+                right = picture.size[0]*W1/(W1+W2) #proportional split
+            top     = 0
+            leftim = picture.crop(( left , top , right , bottom ))  #resolution of left screen
+            leftim = leftim.resize((R1W,R1H), Image.ANTIALIAS)
+            new_im.paste(leftim, (x1_offset,y1_offset))
 
-        new_im = Image.new('RGB', (width, height))
+            #image 2
+            picture2 = Image.open(file0)
+            x2_offset = int(leftim.size[0]) #place next to left im
+            y2_offset = int(M2H) #relative position of the monitors
 
-        picture = Image.open(file0)
-        #image 1
-        x_offset = 0 #shouldnt need to change this
-        y_offset = 0 #change this if left monitor is lower than right
-                     # DMT (dual monitor tools) by MS can tell you what the
-                     # offsets should be. DMT>>Monitors>>working
+            toplevel    = int(picture2.size[1]*V/H1)
+            bottomlevel = int(picture2.size[1]*(V+H2)/H1)
 
-        left    = 0
-        bottom  = picture.size[1]
-        right   = picture.size[0]/2 #take a horizontal part of the image,
-                                             #that is proportional to the screen size
-        top     = 0
-        leftim = picture.crop(( left , top , right , bottom ))  #resolution of left screen
-        leftim = leftim.resize((R1W,R1H), Image.ANTIALIAS)
-        new_im.paste(leftim, (x_offset,0))
 
-        #image 2
-        picture2 = Image.open(file0)
-        x_offset += int(leftim.size[0]) #place next to left im
-        y_offset = int(M2H) #relative position of the monitors
+            if gap == 1:
+                left    = picture.size[0]*W1/(W1+W2) + int(1.0*width*H/(W1+W2))
+            elif gap ==0:
+                left    = picture2.size[0]/2 #+ int(1.0*width*H/(W1+W2))#crop off whats on the left screen
 
-        toplevel    = int(picture2.size[1]*V/H1)
-        bottomlevel = int(picture2.size[1]*(V+H2)/H1)
+            bottom  = bottomlevel
+            if PPI == 1:
+                right = left + W2*picture2.size[0]/(2*W1)
+            else:
+                right = picture2.size[0]
 
-        left    = picture2.size[0]/2 #+ int(1.0*width*H/(W1+W2))#crop off whats on the left screen
-        bottom  = bottomlevel
-        print left
-        if rescale == True:
-            right = left + W2*picture2.size[0]/(2*W1)
-        else:
-            right = left*2
-        print right
-        top     = toplevel
-        rightim = picture2.crop(( left , top , right , bottom ))  #resolution of left screen
-        #rightim = rightim.resize((R1W,R1H), Image.ANTIALIAS)
 
-        rightim = rightim.resize((R2W,R2H), Image.ANTIALIAS)
+            top     = toplevel
+            rightim = picture2.crop(( left , top , right , bottom ))  #resolution of left screen
+            #rightim = rightim.resize((R1W,R1H), Image.ANTIALIAS)
 
-        new_im.paste(rightim, (x_offset,y_offset))
+            rightim = rightim.resize((R2W,R2H), Image.ANTIALIAS)
 
-        new_im.save('./output/'+file0[16:], quality =100)
-        print str(i) + ' images complete'
-        i +=1
-    else: #the file is not a jpg or png
-        print 'file '+file0+' is not a .png or .jpg. Skipping...'
-        continue
+            new_im.paste(rightim, (x2_offset,y2_offset))
+
+            new_im.save('./output/'+file0[16:], quality =100)
+            print(str(i) + ' images complete')
+            i +=1
+        else: #the file is not a jpg or png
+            print('file '+file0+' is not a .png or .jpg. Skipping...')
+            continue
+#main(H1,H2,W1,W2,R1W,R1H,R2W,R2H,V,H,lower,mainmon)
