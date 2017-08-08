@@ -28,13 +28,17 @@ class Application(Frame):
         self.calc["command"] = self.calculate
         self.calc.grid(row = 1, column = 0)
 
-        self.savecon = Button(self.left, text="Save Config", fg="green")
+        self.init = Button(self.left, text="Create folders", fg="blue")
+        self.init["command"] = self.init
+        self.init.grid(row = 1, column = 1)
+
+        self.savecon = Button(self.left, text="Save Config", fg="orange")
         self.savecon["command"] = self.saveconfig
         self.savecon.grid(row = 2, column = 0)
 
         self.savecon = Button(self.left, text="Load Config", fg="green")
         self.savecon["command"] = self.loadconfig
-        self.savecon.grid(row = 2, column = 2)
+        self.savecon.grid(row = 2, column = 1)
 
         Label(self.left, text = "place right mon at: ").grid( row = 4, column  = 0)
         self.label1 = Label(self.left, text = "0")
@@ -160,8 +164,11 @@ class Application(Frame):
 
 
     def init(self):
+        print('test2')
         for i in ('./splitterinput','./output'):
+            print('test')
             if not os.path.exists(i):
+                print(i)
                 os.makedirs(i)
 
     def saveconfig(self):
