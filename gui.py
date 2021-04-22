@@ -173,10 +173,9 @@ class Application(Frame):
 
     def saveconfig(self):
         print('saving config')
-        f1=open('./config.config', 'w+')
-        for i in self.entries:
-            f1.write(str(i.get()) + '\n')
-        f1.close()
+        with open('./config.config', 'w+') as f1:
+            for i in self.entries:
+                f1.write(str(i.get()) + '\n')
         messagebox.showinfo("Notice", "Saving complete")
 
 
